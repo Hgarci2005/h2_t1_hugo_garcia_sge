@@ -19,9 +19,9 @@ def create_button(frame, text, command):
 
 def on_select(event):
     try:
-        selected_item = listbox_encuestas.curselection()
+        selected_item = treeview_encuestas.selection()
         if selected_item:
-            data = listbox_encuestas.get(selected_item)
+            data = treeview_encuestas.item(selected_item)['values']
             entry_edad.delete(0, tk.END)
             entry_edad.insert(0, data[1])
             entry_sexo.delete(0, tk.END)
@@ -71,7 +71,7 @@ def show_graph_selection():
 # Configuración de la interfaz gráfica
 root = tk.Tk()
 root.title("Gestión de Encuestas")
-root.geometry("800x700")
+root.geometry("1000x800")
 root.config(bg="#2C3E50")
 
 style = ttk.Style()
@@ -103,9 +103,9 @@ frame_botones = ttk.Frame(frame_principal, padding="10")
 frame_botones.pack(fill=tk.X)
 
 create_button(frame_botones, "Crear Encuesta", lambda: crear_encuesta(entry_edad, entry_sexo))
-create_button(frame_botones, "Ver Encuestas", lambda: ver_encuestas(listbox_encuestas))
-create_button(frame_botones, "Actualizar Encuesta", lambda: actualizar_encuesta(entry_edad, entry_sexo, listbox_encuestas))
-create_button(frame_botones, "Eliminar Encuesta", lambda: eliminar_encuesta(listbox_encuestas))
+create_button(frame_botones, "Ver Encuestas", lambda: ver_encuestas(treeview_encuestas))
+create_button(frame_botones, "Actualizar Encuesta", lambda: actualizar_encuesta(entry_edad, entry_sexo, treeview_encuestas))
+create_button(frame_botones, "Eliminar Encuesta", lambda: eliminar_encuesta(treeview_encuestas))
 create_button(frame_botones, "Exportar a Excel", exportar_a_excel)
 create_button(frame_botones, "Generar Gráfico", show_graph_selection)
 
@@ -115,11 +115,18 @@ frame_listbox.pack(fill=tk.BOTH, expand=True)
 scrollbar = ttk.Scrollbar(frame_listbox)
 scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-listbox_encuestas = tk.Listbox(frame_listbox, height=10, width=80, font=("Arial", 12), bg="#34495E", fg="#ECF0F1", yscrollcommand=scrollbar.set)
-listbox_encuestas.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
-scrollbar.config(command=listbox_encuestas.yview)
+columns = ("ID", "Edad", "Sexo", "Bebidas Semana", "Cervezas Semana", "Bebidas Fin Semana",
+           "Bebidas Destiladas Semana", "Vinos Semana", "Perdidas Control", "Diversion Dependencia",
+           "Problemas Digestivos", "Tension Alta", "Dolor Cabeza")
 
-listbox_encuestas.bind('<<ListboxSelect>>', on_select)
+treeview_encuestas = ttk.Treeview(frame_listbox, columns=columns, show="headings", yscrollcommand=scrollbar.set)
+for col in columns:
+    treeview_encuestas.heading(col, text=col)
+    treeview_encuestas.column(col, width=100)
+treeview_encuestas.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+scrollbar.config(command=treeview_encuestas.yview)
+
+treeview_encuestas.bind('<<TreeviewSelect>>', on_select)
 
 frame_buscar = ttk.Frame(frame_principal, padding="10")
 frame_buscar.pack(fill=tk.X)
@@ -129,9 +136,6 @@ entry_buscar_edad = ttk.Entry(frame_buscar, font=("Arial", 12))
 entry_buscar_edad.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
 tk.Label(frame_buscar, text="Buscar por Sexo:", font=("Arial", 12), bg="#2C3E50", fg="#ECF0F1").grid(row=1, column=0, padx=5, pady=5, sticky="w")
-entry_buscar_sexo = ttk.Entry(frame_buscar, font=("Arial", 12))
-entry_buscar_sexo.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
-
 tk.Label(frame_buscar, text="Buscar por Edad:", font=("Arial", 12), bg="#2C3E50", fg="#ECF0F1").grid(row=0, column=0, padx=5, pady=5, sticky="w")
 entry_buscar_edad = ttk.Entry(frame_buscar, font=("Arial", 12))
 entry_buscar_edad.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
